@@ -8,6 +8,7 @@ from signal import pause
 import os
 import sys
 import requests
+import time
 
 # Where is the traps connected on the Pi, there is one wire to the GPIO and one to ground and when that connection is broken ie the trap has sprung it triggeres when_released
 trap_gpio_pins = [2,3,4,5,6,13,19,26] 
@@ -15,16 +16,22 @@ trap_gpio_pins = [2,3,4,5,6,13,19,26]
 traps = []
 
 try:
-    os.environ["IFTT_KEY"]
+    os.environ["APP_KEY"]
 except KeyError:
-    print("Please set the environment variable IFTT_KEY")
+    print("Please set the environment variable APP_KEY!")
+    sys.exit(1)
+
+try:
+    os.environ["USER_KEY"]
+except KeyError:
+    print("Please set the environment variable USER_KEY!")
     sys.exit(1)
 
 # Save basic stats in a text file
-def trap_stats(t):
-    file = open('trap_stats.txt', 'a')
-    file.write(t+'\n')
-    file.close()
+# def trap_stats(t):
+#     file = open('trap_stats.txt', 'a')
+#     file.write(t+'\n')
+#     file.close()
 
 def trap_setup():
     for p in trap_gpio_pins:
@@ -44,14 +51,16 @@ def gpio_to_trap(pin):
 
 def trap_triggered(button_object):
     t = gpio_to_trap(button_object.pin)
-    post_body = {'value1': t}
     print(f'Trap {t} got triggered!')
 
-    trap_stats(t)
+    # trap_stats(t)
 
     try:
-        # Sends notifications using the IFTT action "trap_triggered", create on your own account to get a valid key
-        r = requests.post('https://maker.ifttt.com/trigger/trap_triggered/with/key/{}'.format(os.environ["IFTT_KEY"]), json=post_body)
+        r = requests.post("https://api.pushover.net/1/messages.json", data = {
+        "token": os.environ["APP_KEY"],
+        "user": os.environ["USER_KEY"],
+        "message": "Trap {} got triggered! 🐭".format(t)
+        })
         print('Notification sent to IFTTT')
         print(r)
     except requests.exceptions.RequestException as e:
@@ -74,6 +83,6 @@ def check_traps():
 
 trap_setup()
 
-check_traps()
-
-pause() # Leave program running...
+while True:
+    check_traps()
+    time.sleep(900)
