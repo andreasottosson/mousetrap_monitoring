@@ -3,4 +3,4 @@ A simple Python script for monitoring mouse traps using a Raspberry Pi using gpi
 
 Simply connect one wire to ground and one wire to a GPIO-pin, set those pins in the code and lightly connect the wires at the mouse trap so that when it triggers the wires are disconnected. Or use some fancier method like perhaps IR break beam sensors or magnet connectors or something. I kept it very simple.
 
-I also use IFTTT for push notifications so you need to make your own applet to get a valid key. The action name used is "trap_triggered".
+I also use Pushover for push notifications.
