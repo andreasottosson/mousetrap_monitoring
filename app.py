@@ -61,10 +61,10 @@ def trap_triggered(button_object):
         "user": os.environ["USER_KEY"],
         "message": "Trap {} got triggered! 🐭".format(t)
         })
-        print('Notification sent to IFTTT')
+        print('Notification sent!')
         print(r)
     except requests.exceptions.RequestException as e:
-        print('Error sending notification to IFTTT')
+        print('Error sending notification...')
         print(e)
 
 def check_traps():
