@@ -1,0 +1,54 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mousetrap-monitoring
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pushover-keys
+  namespace: mousetrap-monitoring
+data:
+  APP_KEY: 
+  USER_KEY: 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mousetrap-monitoring
+  name: mousetrap-monitoring
+  namespace: mousetrap-monitoring
+spec:
+  strategy: 
+    type: Recreate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mousetrap-monitoring
+    spec:
+      containers:
+        - image: andreasottosson/mousetrap-monitoring:latest
+          name: mousetrap-monitoring
+          imagePullPolicy: Always 
+          tty: true
+          stdin: true
+          securityContext:
+            runAsGroup: 997
+            allowPrivilegeEscalation: true
+            privileged: true
+          envFrom:
+            - secretRef:
+                name: pushover-keys
+          volumeMounts:
+            - name: gpio
+              mountPath: /sys
+      volumes:
+        - name: gpio
+          hostPath:
+            path: /sys
+  selector:
+    matchLabels:
+      app: mousetrap-monitoring 
